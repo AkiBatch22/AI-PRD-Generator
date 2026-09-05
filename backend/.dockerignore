@@ -1,0 +1,9 @@
+__pycache__
+*.db
+.env
+.env.*
+*.db-*
+*.sqlite*
+.pytest_cache
+tests
+requirements-dev.txt

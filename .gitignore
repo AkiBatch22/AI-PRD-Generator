@@ -1,0 +1,37 @@
+node_modules/
+.next/
+.next-dev/
+.venv/
+__pycache__/
+.pytest_cache/
+*.db
+.env
+*.tsbuildinfo
+
+# Local settings and credentials (keep example files)
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local databases and test/build outputs
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+.coverage*
+coverage/
+htmlcov/
+test-results/
+*.log
+dist/
+build/
+*.egg-info/
+.ruff_cache/
+
+# Editor and operating system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
