@@ -1,12 +1,50 @@
-# Context — AI Product Context & PRD Copilot
+# Context
 
-A minimal organization-aware product workspace built with Next.js, React, TypeScript, Tailwind, FastAPI, Pydantic, SQLAlchemy, and PostgreSQL. It establishes company knowledge first, then guides initiatives through discovery, an approved brief, structured requirements, an assumptions ledger, and independent review.
+An AI-assisted product planning workspace that turns ideas into Product Requirements Documents (PRDs), grounded in company knowledge and reviewed by people.
 
-The fictional FinEdge workspace and two products are seeded automatically. Open **Home Loan Readiness Score** to start the example discovery. The complete workflow runs without an API key.
+Context guides teams from discovery questions to an approved brief, testable requirements, and a reviewed document. Confirmed facts, AI assumptions, and unanswered questions remain distinct throughout the workflow.
 
-For a walkthrough of the project, request lifecycle, and interview questions, read [the interview guide](docs/INTERVIEW_GUIDE.md). For your first GitHub push, the CI/CD pipeline, and release images, read [GitHub setup](docs/GITHUB_SETUP.md).
+Built with **Next.js, React, TypeScript, Tailwind, FastAPI, Pydantic, SQLAlchemy, and PostgreSQL**.
 
-The UI has three main views: PRDs, Context, and Products. Each PRD opens a single-column workflow with on-demand Assumptions, Preview, and Quality views.
+## Features
+
+- **Organization context:** capture company goals, customers, products, and rules, or import existing documents.
+- **Guided discovery:** answer focused questions with explanations of why each decision matters.
+- **Human approval:** review the product brief before generating requirements.
+- **Structured requirements:** define acceptance criteria, dependencies, edge cases, and AI fallback behavior.
+- **Assumptions ledger:** confirm, edit, or reject proposals while keeping unknowns visible.
+- **Review and export:** inspect critic findings and completeness checks, then export the PRD as Markdown.
+
+The application includes a fictional FinEdge workspace and two sample products. Open **Home Loan Readiness Score** to explore the workflow. Demo mode runs without an API key; a compatible model provider can be configured separately.
+
+## Screenshots
+
+These captures use fictional data and the built-in demo provider.
+
+![Guided discovery with an explanation of why a question matters](screenshots/discovery.jpg)
+
+<details>
+<summary>Explore organization context, assumptions, requirements, and quality review</summary>
+
+### Organization context
+
+![Organization knowledge and confirmed facts](screenshots/organization-context.jpg)
+
+### Assumptions ledger
+
+![AI assumptions and unresolved questions awaiting human review](screenshots/assumptions-ledger.jpg)
+
+### Structured requirements
+
+![Generated requirements with acceptance criteria](screenshots/structured-requirements.jpg)
+
+### Quality review
+
+The score measures completeness, not correctness. This example retains unresolved issues for review.
+
+![Quality report with category scores and open review issues](screenshots/quality-review.jpg)
+
+</details>
 
 ## Architecture
 
@@ -188,18 +226,25 @@ Backend tests default to isolated in-memory SQLite with foreign keys enabled and
 
 ## CI/CD
 
-The GitHub Actions workflow in `.github/workflows/pipeline.yml` runs backend tests (SQLite and PostgreSQL), frontend lint/type/build checks, and a container smoke test. Successful default-branch pushes and version tags publish backend/frontend images to GitHub Container Registry. Manual runs default to checks only, with optional publishing on the default branch. Hosting deployment is intentionally separate.
+The [GitHub Actions workflow](.github/workflows/pipeline.yml) runs on pull requests, branch pushes, version tags, and manual dispatches:
 
-No repository-specific workflow edits or LLM credentials are needed. See [GitHub setup](docs/GITHUB_SETUP.md) for the trigger rules, image names, local commands, and the steps you will perform to commit and push.
+1. Run backend tests against SQLite and PostgreSQL.
+2. Run frontend lint, type checks, and a production build.
+3. Build the Compose stack and exercise the complete workflow through the frontend proxy.
+4. Publish backend and frontend images to GitHub Container Registry after all checks pass on the default branch or a version tag.
 
-## Screenshot placeholders
+Manual runs perform checks by default. Optional publication is available when running on the default branch. The workflow uses the repository's `GITHUB_TOKEN` for registry access and the demo provider for tests; no LLM credentials are required.
 
-- `docs/screenshots/prds.png`: the minimal PRD list and workspace navigation.
-- `docs/screenshots/blueprint.png`: confirmed facts, assumptions, open questions.
-- `docs/screenshots/prd-workspace.png`: the focused workflow and optional preview view.
-- `docs/screenshots/review.png`: critic findings and deterministic score.
+Published images use these references, with the owner and repository name in lowercase:
 
-These are documentation placeholders; image files are not included.
+```text
+ghcr.io/<owner>/<repository>-backend:sha-<full-commit-sha>
+ghcr.io/<owner>/<repository>-frontend:sha-<full-commit-sha>
+```
+
+Version tags such as `v1.0.0` or `v1.0.0-rc.1` also produce matching image tags. Exact published references appear in the workflow summary. To run a published release, set `BACKEND_IMAGE` and `FRONTEND_IMAGE` in the root `.env`, authenticate to the registry if the packages are private, and run `docker compose up -d --no-build`. Database settings are supplied through Compose.
+
+The pipeline delivers container images. Deployment to a hosting environment is managed separately.
 
 ## MVP boundaries and roadmap
 
@@ -207,6 +252,16 @@ These are documentation placeholders; image files are not included.
 - **Schema evolution:** startup creates the initial schema. Add Alembic migrations before changing a deployed database; `create_all` does not migrate existing tables.
 - **Review semantics:** deterministic matching is conservative and incomplete. Expand rule evaluators and add provider evaluation datasets before treating the critic as a policy gate.
 - **Documents:** extraction supports text PDFs, not scanned OCR, tables, images, citations to page coordinates, or asynchronous large-file processing.
-- **Workflow:** onboarding answers are persisted as context, but the current interview position is held in the page. Resume incomplete blueprints through Organization Context. Finalized PRDs have no revision/fork workflow yet.
-- **Deployment:** the deliverable is the requested Next.js/FastAPI/PostgreSQL application with Compose. The Sites Worker runtime cannot directly host its Python/PostgreSQL backend. It is not deployed to an external service.
+- **Workflow:** onboarding answers are persisted as context, but the current onboarding step is held in the page. Resume incomplete blueprints through Organization Context. Finalized PRDs have no revision/fork workflow yet.
+- **Deployment:** Compose provides the application and database stack. Public hosting requires environment-specific configuration and the authentication and schema-management work described above.
 - **Future:** versioned context and decisions, richer retrieval, document provenance, calibrated AI evaluations, schema migrations, authenticated workspace membership, background generation, and PRD revisions. Billing, enterprise SSO, Jira/Slack/Figma integrations, realtime collaboration, and vector infrastructure are intentionally excluded.
+
+## Contributing
+
+Bug reports, product feedback, and focused pull requests are welcome. Include steps to reproduce a bug, expected behavior, and relevant logs with sensitive information removed. For larger changes, open an issue to discuss the approach first.
+
+Run the checks in [Verification](#verification) before submitting a pull request. Include relevant tests for behavior changes and update documentation when setup or workflows change.
+
+## License
+
+Licensed under the [MIT License](LICENSE).

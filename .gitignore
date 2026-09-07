@@ -35,3 +35,8 @@ build/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Personal preparation and publishing materials
+/social/
+**/[Ii][Nn][Tt][Ee][Rr][Vv][Ii][Ee][Ww]_[Gg][Uu][Ii][Dd][Ee].*
+/private-notes/
